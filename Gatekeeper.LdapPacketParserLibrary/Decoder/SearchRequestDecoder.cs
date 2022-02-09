@@ -9,6 +9,10 @@ namespace Gatekeeper.LdapPacketParserLibrary.Decoder
 {
     internal class SearchRequestDecoder : IApplicationDecoder<SearchRequest>
     {
+
+        private System.Text.Encoding valueDecoder = System.Text.Encoding.UTF8;
+
+
         public SearchRequest TryDecode(AsnReader reader, byte[] input)
         {
             SearchRequest searchRequest = new SearchRequest
@@ -34,8 +38,7 @@ namespace Gatekeeper.LdapPacketParserLibrary.Decoder
         {
             AsnReader subReader = reader.ReadSequence(new Asn1Tag(TagClass.ContextSpecific, reader.PeekTag().TagValue));
             string attributeDescription = System.Text.Encoding.ASCII.GetString(subReader.ReadOctetString());
-            string assertionValue = System.Text.Encoding.ASCII.GetString(subReader.ReadOctetString());
-
+            string assertionValue = valueDecoder.GetString(subReader.ReadOctetString());
             return new TFilter { AssertionValue = assertionValue, AttributeDesc = attributeDescription };
         }
 
@@ -69,13 +72,13 @@ namespace Gatekeeper.LdapPacketParserLibrary.Decoder
                 switch (substringSequenceReader.PeekTag().TagValue)
                 {
                     case 0:
-                        filter.Initial = System.Text.Encoding.ASCII.GetString(substringSequenceReader.ReadOctetString(new Asn1Tag(TagClass.ContextSpecific, 0)));
+                        filter.Initial = valueDecoder.GetString(substringSequenceReader.ReadOctetString(new Asn1Tag(TagClass.ContextSpecific, 0)));
                         break;
                     case 1:
-                        filter.Any.Add(System.Text.Encoding.ASCII.GetString(substringSequenceReader.ReadOctetString(new Asn1Tag(TagClass.ContextSpecific, 1))));
+                        filter.Any.Add(valueDecoder.GetString(substringSequenceReader.ReadOctetString(new Asn1Tag(TagClass.ContextSpecific, 1))));
                         break;
                     case 2:
-                        filter.Final = System.Text.Encoding.ASCII.GetString(substringSequenceReader.ReadOctetString(new Asn1Tag(TagClass.ContextSpecific, 2)));
+                        filter.Final = valueDecoder.GetString(substringSequenceReader.ReadOctetString(new Asn1Tag(TagClass.ContextSpecific, 2)));
                         break;
                 }
             }
