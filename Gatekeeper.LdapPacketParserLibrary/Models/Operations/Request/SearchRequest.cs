@@ -17,9 +17,9 @@ namespace Gatekeeper.LdapPacketParserLibrary.Models.Operations.Request
 
         public enum ScopeEnum
         {
-            BaseObject = 1,
-            SingleLevel = 2,
-            WholeSubtree = 3,
+            BaseObject = 0,
+            SingleLevel = 1,
+            WholeSubtree = 2,
         }
 
         public enum DerefAliasesEnum

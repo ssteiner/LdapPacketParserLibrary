@@ -23,15 +23,36 @@ namespace Gatekeeper.LdapPacketParserLibrary.Decoder
             Asn1Tag bindRequestApplication = new Asn1Tag(TagClass.Application, 3);
             AsnReader subReader = reader.ReadSequence(bindRequestApplication);
             searchRequest.BaseObject = System.Text.Encoding.ASCII.GetString(subReader.ReadOctetString());
-            SearchRequest.ScopeEnum scope = subReader.ReadEnumeratedValue<SearchRequest.ScopeEnum>();
-            SearchRequest.DerefAliasesEnum deref = subReader.ReadEnumeratedValue<SearchRequest.DerefAliasesEnum>();
+
+            searchRequest.Scope = subReader.ReadEnumeratedValue<SearchRequest.ScopeEnum>();
+            searchRequest.DerefAliases = subReader.ReadEnumeratedValue<SearchRequest.DerefAliasesEnum>();
+
             BigInteger sizeLimit = subReader.ReadInteger();
+            searchRequest.SizeLimit = (int)sizeLimit;
             BigInteger timeLimit = subReader.ReadInteger();
-            bool typesOnly = subReader.ReadBoolean();
+            searchRequest.TimeLimit = (int)timeLimit;
+            searchRequest.TypesOnly = subReader.ReadBoolean();
 
             searchRequest.Filter = DecodeSearchFilter(subReader);
+            searchRequest.AttributeSelection = DecodeAttributeList(subReader);
 
             return searchRequest;
+        }
+
+        private List<string> DecodeAttributeList(AsnReader reader)
+        {
+            var collectionReader = reader.ReadSequence();
+            var attributes = new List<string>();
+            ReadOnlyMemory<byte> tempItem;
+            while (collectionReader.HasData)
+            {
+                if (collectionReader.TryReadPrimitiveOctetString(out ReadOnlyMemory<byte> contents))
+                    tempItem = contents;
+                else
+                    tempItem = collectionReader.ReadOctetString();
+                attributes.Add(System.Text.Encoding.ASCII.GetString(tempItem.ToArray()));
+            }
+            return attributes;
         }
 
         private TFilter DecodeAttributeValueAssertionFilter<TFilter>(AsnReader reader) where TFilter : AttributeValueAssertionFilter, new()
