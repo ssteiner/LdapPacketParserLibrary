@@ -50,6 +50,10 @@ namespace Gatekeeper.LdapPacketParserLibrary
                     UnbindRequestDecoder unbindRequestDecoder = new UnbindRequestDecoder();
                     result = unbindRequestDecoder.TryDecode(reader, input);
                     break;
+                case AbandonRequest.Tag:
+                    AbandonRequestDecoder abandonRequestDecoder = new AbandonRequestDecoder();
+                    result = abandonRequestDecoder.TryDecode(reader, input);
+                    break;
             }
 
             if (result != null)
